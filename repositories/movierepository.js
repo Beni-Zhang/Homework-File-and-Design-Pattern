@@ -1,29 +1,25 @@
-const movieModel = require('../models/movie');
+const movieModel = require('../models/movieModel');
 
-const getAllMovies = () => {
-  return movieModel.getAllMovies();
-};
+class MovieRepository {
+  async getAllMovies() {
+    return movieModel.getAllMovies();
+  }
 
-const getMovieById = (id) => {
-  return movieModel.getMovieById(id);
-};
+  async getMovieById(id) {
+    return movieModel.getMovieById(id);
+  }
 
-const createMovie = (movie) => {
-  return movieModel.createMovie(movie);
-};
+  async createMovie({ id, title, genres, year, photo }) {
+    return movieModel.createMovie({ id, title, genres, year, photo });
+  }
 
-const updateMovie = (id, movie) => {
-  return movieModel.updateMovie(id, movie);
-};
+  async updateMovie(id, { title, genres, year, photo }) {
+    return movieModel.updateMovie(id, { title, genres, year, photo });
+  }
 
-const deleteMovie = (id) => {
-  return movieModel.deleteMovie(id);
-};
+  async deleteMovie(id) {
+    return movieModel.deleteMovie(id);
+  }
+}
 
-module.exports = {
-  getAllMovies,
-  getMovieById,
-  createMovie,
-  updateMovie,
-  deleteMovie,
-};
+module.exports = new MovieRepository();

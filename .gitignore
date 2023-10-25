@@ -1,0 +1,6 @@
+# Ignore specific files
+github link.pdf
+db.js
+
+# Ignore a folder and its contents
+tes/

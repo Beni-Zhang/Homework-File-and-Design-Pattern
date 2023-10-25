@@ -1,59 +1,88 @@
 const movieRepository = require('../repositories/movieRepository');
 
-const getAllMovies = async (req, res) => {
+exports.getAllMovies = async (req, res) => {
   try {
     const movies = await movieRepository.getAllMovies();
-    res.json(movies.rows);
+    res.status(200).json(movies);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat mengambil data movies.' });
   }
 };
 
-const getMovieById = async (req, res) => {
-  const id = req.params.id;
+exports.getMovieById = async (req, res) => {
+  const { id } = req.params;
   try {
     const movie = await movieRepository.getMovieById(id);
-    res.json(movie.rows[0]);
+    if (movie) {
+      res.status(200).json(movie);
+    } else {
+      res.status(404).json({ error: 'Movie tidak ditemukan.' });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat mengambil detail movie.' });
   }
 };
 
-const createMovie = async (req, res) => {
-  const { title, description } = req.body;
+exports.createMovie = async (req, res) => {
+  const { id, title, genres, year, photo } = req.body;
   try {
-    const movie = await movieRepository.createMovie({ title, description });
-    res.json(movie.rows[0]);
+    const newMovie = await movieRepository.createMovie({ id, title, genres, year, photo });
+    res.status(201).json(newMovie);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat membuat movie baru.' });
   }
 };
 
-const updateMovie = async (req, res) => {
-  const id = req.params.id;
-  const { title, description } = req.body;
+exports.updateMovie = async (req, res) => {
+  const { id } = req.params;
+  const { title, genres, year, photo } = req.body;
   try {
-    const movie = await movieRepository.updateMovie(id, { title, description });
-    res.json(movie.rows[0]);
+    const existingMovie = await movieRepository.getMovieById(id);
+    if (existingMovie) {
+      // Remove any logic related to file handling if you're not updating the photo
+    }
+
+    const updatedMovie = await movieRepository.updateMovie(id, { title, genres, year, photo });
+    if (updatedMovie) {
+      res.status(200).json(updatedMovie);
+    } else {
+      res.status(404).json({ error: 'Movie tidak ditemukan.' });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat memperbarui movie.' });
   }
 };
 
-const deleteMovie = async (req, res) => {
-  const id = req.params.id;
+exports.deleteMovie = async (req, res) => {
+  const { id } = req.params;
   try {
-    await movieRepository.deleteMovie(id);
-    res.json({ message: 'Movie deleted successfully' });
+    const deletedMovie = await movieRepository.deleteMovie(id);
+    if (deletedMovie) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ error: 'Movie tidak ditemukan.' });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat menghapus movie.' });
   }
 };
 
-module.exports = {
-  getAllMovies,
-  getMovieById,
-  createMovie,
-  updateMovie,
-  deleteMovie,
+exports.uploadPhoto = async (req, res) => {
+  try {
+    if (req.file) {
+      const photoFilename = req.file.filename; // Get the filename of the uploaded photo
+      const photoPath = `uploads/${photoFilename}`; // Construct the relative path
+      res.sendFile(photoPath, { root: __dirname }); // Send the photo as a response
+  } else {
+    res.status(400).send('No photo uploaded');
+  }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat mengunggah foto.' });
+  }
 };
