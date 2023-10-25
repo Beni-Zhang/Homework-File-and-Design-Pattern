@@ -2,18 +2,14 @@ const express = require('express');
 const app = express();
 const movieRoutes = require('./routes/movieRoutes');
 const userRoutes = require('./routes/userRoutes');
-require('dotenv').config();
 
-app.use(express.json()); // Parse JSON request bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Mount movie routes under /api/movies
 app.use('/movies', movieRoutes);
 
-// Mount user routes under /api/users
 app.use('/users', userRoutes);
 
-// Konfigurasi untuk menyajikan file statis
 app.use('/uploads', express.static('uploads'));
 
 const port = process.env.PORT || 3000;
